@@ -1,17 +1,13 @@
 import thread
 from ChatFns import *
 
-
-
 #---------------------------------------------------#
 #---------INITIALIZE CONNECTION VARIABLES-----------#
 #---------------------------------------------------#
 WindowTitle = 'JChat v0.1 - Client'
 HOST = 'localhost'
-PORT = 8012
+PORT = 8029
 s = socket(AF_INET, SOCK_STREAM)
-
-
 
 
 #---------------------------------------------------#
@@ -19,24 +15,32 @@ s = socket(AF_INET, SOCK_STREAM)
 #---------------------------------------------------#
 def ClickAction():
     #Write message to chat window
-    EntryText = FilteredMessage(EntryBox.get("0.0",END))
-    LoadMyEntry(ChatLog, EntryText," ")
+    EntryText = FilteredMessage(EntryBox.get("0.0", END))
+
+    LoadMyEntry(ChatLog, EntryText)
 
     #Scroll to the bottom of chat windows
     ChatLog.yview(END)
-    
 
     #Erace previous message in Entry Box
-    EntryBox.delete("0.0",END)
+    EntryBox.delete("0.0", END)
 
     #Send my mesage to all others
+
     s.sendall(EntryText)
+
+    if EntryText == "bye\n":
+        base.destroy()
+
+
 #---------------------------------------------------#
 #----------------- KEYBOARD EVENTS -----------------#
 #---------------------------------------------------#
 def PressAction(event):
 	EntryBox.config(state=NORMAL)
 	ClickAction()
+
+
 def DisableEntry(event):
 	EntryBox.config(state=DISABLED)
 
@@ -66,13 +70,13 @@ SendButton = Button(base, font=30, text="Send", width="12", height=5,
                     command=ClickAction)
 
 #Create the box to enter message
-EntryBox = Text(base, bd=0, bg="white",width="29", height="5", font="Arial")
+EntryBox = Text(base, bd=0, bg="white", width="29", height="5", font="Arial")
 EntryBox.bind("<Return>", DisableEntry)
 EntryBox.bind("<KeyRelease-Return>", PressAction)
 
 #Place all components on the screen
-scrollbar.place(x=376,y=6, height=386)
-ChatLog.place(x=6,y=6, height=386, width=370)
+scrollbar.place(x=376, y=6, height=386)
+ChatLog.place(x=6, y=6, height=386, width=370)
 EntryBox.place(x=128, y=401, height=90, width=265)
 SendButton.place(x=6, y=401, height=90)
 
@@ -84,8 +88,8 @@ SendButton.place(x=6, y=401, height=90)
 def ReceiveData():
     try:
         s.connect((HOST, PORT))
-        LoadConnectionInfo(ChatLog, '[ Succesfully connected ]\n---------------------------------------------------------------')
-        
+        LoadConnectionInfo(
+            ChatLog, '[ Succesfully connected ]\n---------------------------------------------------------------')
     except:
         LoadConnectionInfo(ChatLog, '[ Unable to connect ]')
         return
@@ -93,23 +97,27 @@ def ReceiveData():
     while 1:
         try:
             data = s.recv(1024)
+
         except:
-            LoadConnectionInfo(ChatLog, '\n [ Your partner has disconnected ] \n')
+            LoadConnectionInfo(
+                ChatLog, '\n [ Your partner has disconnected ] \n')
             break
+
         if data != '':
-            #Pasar nombre
-            LoadOtherEntry(ChatLog, data,"nombre")
+            [name, msg] = data.split(":")
+            LoadOtherEntry(ChatLog, name, msg)
             if base.focus_get() == None:
                 FlashMyWindow(WindowTitle)
                 playsound('notif.wav')
 
         else:
-            LoadConnectionInfo(ChatLog, '\n [ Your partner has disconnected ] \n')
-            s.close()
-            base.destroy()
-            break
-    #s.close()
+            LoadConnectionInfo(
+                ChatLog, '\n [ Your partner has disconnected ] \n')
 
-thread.start_new_thread(ReceiveData,())
+            break
+    
+
+
+thread.start_new_thread(ReceiveData, ())
 
 base.mainloop()
