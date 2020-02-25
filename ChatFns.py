@@ -90,20 +90,22 @@ def LoadConnectionInfo(ChatLog, EntryText):
             ChatLog.yview(END)
 
 #YOU
-def LoadMyEntry(ChatLog, EntryText,Name):
+
+
+def LoadMyEntry(ChatLog, EntryText):
     if EntryText != '':
         ChatLog.config(state=NORMAL)
         if ChatLog.index('end') != None:
             LineNumber = float(ChatLog.index('end'))-1.0
-            ChatLog.insert(END, Name+":" , EntryText)
-            ChatLog.tag_add(Name+":", LineNumber, LineNumber+0.4)
-            ChatLog.tag_config(Name+":", foreground="#FF8000",
+            ChatLog.insert(END, "You: " + EntryText)
+            ChatLog.tag_add("You", LineNumber, LineNumber+0.4)
+            ChatLog.tag_config("You", foreground="#FF8000",
                                font=("Arial", 12, "bold"))
             ChatLog.config(state=DISABLED)
             ChatLog.yview(END)
 
 
-def LoadOtherEntry(ChatLog, name, EntryText):
+def LoadOtherEntry(ChatLog, nom, EntryText):
     if EntryText != '':
         ChatLog.config(state=NORMAL)
         if ChatLog.index('end') != None:
@@ -111,8 +113,9 @@ def LoadOtherEntry(ChatLog, name, EntryText):
                 LineNumber = float(ChatLog.index('end'))-1.0
             except:
                 pass
-            ChatLog.insert(END, nom+":"+  EntryText)
+            ChatLog.insert(END, nom+":" + EntryText)
             ChatLog.tag_add(nom+":", LineNumber, LineNumber+0.6)
-            ChatLog.tag_config(nom+":", foreground="#04B404", font=("Arial", 12, "bold"))
+            ChatLog.tag_config(nom+":", foreground="#04B404",
+                               font=("Arial", 12, "bold"))
             ChatLog.config(state=DISABLED)
             ChatLog.yview(END)
